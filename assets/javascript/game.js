@@ -1,0 +1,212 @@
+// first we want to define the character class 
+var characterArray = [
+        {
+          "name":"pikachu", 
+          "type":"electric", 
+          "HP":"100",
+          "energy":"100",
+          "imgURL":"https://cdn.bulbagarden.net/upload/thumb/2/28/Spr_6o_025_C.png/165px-Spr_6o_025_C.png",
+          "attack":{
+                "strong":["water","flying"],
+                "weak":["electric", "grass"],
+                "No": "ground"},
+            "defence":{
+                "resist":["electric","flying"],
+                "weak":["ground"],
+                "no":"NA"
+            },
+            "moves":[
+                {"name":"static",
+                "damage":"20",
+                "energy":"15"
+                },
+                {"name": "lightning rod",
+                "damage":"40",
+                "energy":"50"
+                }
+            ]
+        }, 
+        {
+            "name":"bulbasaur", 
+            "type":"grass", 
+            "HP":"130",
+            "energy":"100",
+            "imgURL":"https://cdn.bulbagarden.net/upload/thumb/2/21/001Bulbasaur.png/375px-001Bulbasaur.png",
+            "attack":{
+                  "strong":["water","ground"],
+                  "weak":["fire", "flying","poison"],
+                  "No": "NA"},
+              "defence":{
+                  "resist":["ground","water"],
+                  "weak":["fire","flying","poison"],
+                  "no":"NA"
+              },
+              "moves":[
+                {"name":"Overgrow",
+                "damage":"40",
+                "energy":"50"
+                },
+                {"name":"chlorophyl",
+                "damage":"0",
+                "energy":"-40"
+                }
+            ]
+          }, 
+          {
+            "name":"charmander", 
+            "type":"fire", 
+            "HP":"100",
+            "energy":"100",
+            "imgURL":"https://cdn.bulbagarden.net/upload/thumb/7/73/004Charmander.png/375px-004Charmander.png",
+            "attack":{
+                  "strong":["grass","poison","flying"],
+                  "weak":["water", "ground","fire"],
+                  "No": "NA"},
+              "defence":{
+                  "resist":["fire","grass"],
+                  "weak":["ground", "water", "electric"],
+                  "no":"NA"
+              },
+              "moves":[
+                {"name":"blaze",
+                "damage":"25",
+                "energy":"30"},
+                {"name":"solar power",
+                "damage":"10",
+                "energy":"-25"}
+            ]
+          }, 
+          {
+            "name":"onix", 
+            "type":"ground", 
+            "HP":"100",
+            "energy":"100",
+            "imgURL":"https://cdn.bulbagarden.net/upload/thumb/9/9a/095Onix.png/375px-095Onix.png",
+            "attack":{
+                  "strong":["electric","poison","fire"],
+                  "weak":["grass"],
+                  "No": "flying"},
+              "defence":{
+                  "resist":["poison","ground"],
+                  "weak":["grass", "water"],
+                  "no":"electric"
+              },
+              "moves":[
+                {"name":"Rock Head",
+                "damage":"60",
+                "energy":"80"},
+                {"name":"tunnel",
+                "damge":"-20",
+                "energy":"60"}
+            ]
+          },
+          {
+            "name":"blastoise", 
+            "type":"water", 
+            "HP":"100",
+            "energy":"100",
+            "imgURL":"https://cdn.bulbagarden.net/upload/thumb/0/02/009Blastoise.png/375px-009Blastoise.png",
+            "attack":{
+                  "strong":["ground","fire"],
+                  "weak":["water","grass"],
+                  "No": "NA"},
+              "defence":{
+                  "resist":["fire","water"],
+                  "weak":["grass", "electric"],
+                  "no":"NA"
+              },
+              "moves":[
+                {"name":"torrent",
+                "damage":"40",
+                "energy":"50"},
+                {"name":"Rain dish",
+                "damage":"-20",
+                "energy":"75"}
+            ]
+          },
+          {
+            "name":"crobat", 
+            "type":"flying", 
+            "HP":"100",
+            "energy":"100",
+            "imgURL":"https://cdn.bulbagarden.net/upload/thumb/1/17/169Crobat.png/375px-169Crobat.png",
+            "attack":{
+                  "strong":["grass","poison"],
+                  "weak":["electric","ground"],
+                  "No": "NA"},
+              "defence":{
+                  "resist":["grass","poison"],
+                  "weak":["fire", "electric"],
+                  "no":"ground"
+              },
+              "moves":[
+                {"name":"Inner Focus",
+                "damage":"20",
+                "energy":"15"},
+                {"name":"Infiltrate",
+                "damage":"-20",
+                "energy":"10"}
+            ]
+          },
+          {
+            "name":"gastly", 
+            "type":"poison", 
+            "HP":"100",
+            "energy":"100",
+            "imgURL":"https://cdn.bulbagarden.net/upload/thumb/c/ca/092Gastly.png/375px-092Gastly.png",
+            "attack":{
+                  "strong":["grass"],
+                  "weak":["poison","ground"],
+                  "No": "NA"},
+              "defence":{
+                  "resist":["grass","poison"],
+                  "weak":["ground", "flying"],
+                  "no":"NA"
+              },
+              "moves":[
+                {"name":"sleep",
+                "damage":"0",
+                "energy":"10"},
+                {"name":"dream Eater",
+                "damage":"50",
+                "energy":"40"}
+            ]
+          }
+      ];
+
+
+console.log(characterArray);
+
+//the game character class ---------------------------------------------------------------------------
+//name 
+// type
+//attack modifier object
+//defence modifier object
+//characterIMG jquery
+//elemID Jquery 
+//
+class GameCharacter {
+//constructor takes a character obj and a elemID
+constructor(Character, elemID,){
+    this.elemID = elemID;
+    
+    
+
+
+}
+
+render(){
+
+}
+
+
+}
+
+// end Game Character Class -----------------------------------------------------------------------------
+var test = new GameCharacter(characterArray[0], $("#character-select"))
+console.log()
+
+//gameState objects which keeps score and keeps
+//player score
+//game Level 
+//

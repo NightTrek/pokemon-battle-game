@@ -1,0 +1,29 @@
+{
+"Characters":[
+  {
+      "name":"pikachu", 
+      "type":"electric", 
+      "attack":{
+            "strong":["water","flying"],
+            "weak":["electric", "grass"],
+            "No": "ground"},
+    }, 
+
+  {"firstName":"Anna", "lastName":"Smith"},
+
+  {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+
+var pikachu = {
+    "name:" "pikachu",
+    type: electric,
+    attack: {
+
+    },
+    defence: {
+
+    },
+
+
+}
