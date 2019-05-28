@@ -28,7 +28,7 @@ var characterArray = [
                 "energy": "50"
             }
         ],
-        "playerOption":"true"
+        "playerOption": "true"
     },
     {
         "name": "bulbasaur",
@@ -58,7 +58,7 @@ var characterArray = [
                 "energy": "-40"
             }
         ],
-        "playerOption":"true"
+        "playerOption": "true"
     },
     {
         "name": "charmander",
@@ -88,7 +88,7 @@ var characterArray = [
                 "energy": "-25"
             }
         ],
-        "playerOption":"true"
+        "playerOption": "true"
     },
     {
         "name": "onix",
@@ -114,11 +114,11 @@ var characterArray = [
             },
             {
                 "name": "tunnel",
-                "damge": "-20",
+                "damage": "-20",
                 "energy": "60"
             }
         ],
-        "playerOption":"true"
+        "playerOption": "true"
     },
     {
         "name": "blastoise",
@@ -148,7 +148,7 @@ var characterArray = [
                 "energy": "75"
             }
         ],
-        "playerOption":"true"
+        "playerOption": "true"
     },
     {
         "name": "crobat",
@@ -178,7 +178,7 @@ var characterArray = [
                 "energy": "10"
             }
         ],
-        "playerOption":"false"
+        "playerOption": "false"
     },
     {
         "name": "gastly",
@@ -208,7 +208,7 @@ var characterArray = [
                 "energy": "40"
             }
         ],
-        "playerOption":"false"
+        "playerOption": "false"
     }
 ];
 
@@ -243,6 +243,7 @@ class GameCharacter {
         this.defence = char.defence;
         this.moves = char.moves;
         this.allowed = char.playerOption;
+        this.ID = `#${this.name}`
         this.render();
     }
 
@@ -258,19 +259,23 @@ class GameCharacter {
 
         this.charBoxDiv.append(this.m1);
         this.charBoxDiv.append(this.m2);
-        this.charBoxDiv.attr("class", "shadow jumbotron col-sm-2 mr-3 pr-2 card button character-Option").attr("id",`#${this.name}`);
+        this.charBoxDiv.attr("class", "shadow jumbotron col-sm-2 mr-3 pr-2 card button character-Option").attr("id", `#${this.name}`);
         //----
         console.log(this.allowed);
-        if(this.allowed=="true"){
-        this.targetElem.append(this.charBoxDiv);
+        if (this.allowed == "true" || this.targetElem == "#Battle") {
+            this.targetElem.append(this.charBoxDiv);
         }
-        
+
     }
 
 
     //Handle what to do when a game character is clicked in the selector menue
-    renderSelected(){
+    renderSelected() {
         this.charBoxDiv.attr("style", "background-color: rgb(224, 188, 26)");
+    }
+    
+    changeTarget(target){
+        this.targetElem = target
     }
 
     printAll() {
@@ -288,7 +293,7 @@ class GameCharacter {
 //player score
 //game Level 
 //
-
+//stages {select-character} {battle-character} 
 class BattleGame {
     //constructor
     constructor(GameCharacters, characterdisplay, battledisplay, scoredisplay) {
@@ -298,28 +303,74 @@ class BattleGame {
             this.GameCharacterArray.push(new GameCharacter(element, characterdisplay));
 
         });
+        this.clength = this.GameCharacterArray.length;
+        this.select1;
+        this.select2;
+        this.Stage = "select-character"
+        this.playerCharacters = [];
 
 
     }
     //end of constructor
 
+    getCharacterById(id) {
+        console.log("getting character id")
+        for (var count = 0; count < this.clength; count++) {
+            if (this.GameCharacterArray[count].ID == id) {
+                return count;
+            }
+        }
+    }
+
+    CharacterSelectionHandler(id) {
+        let index = this.getCharacterById(id);
+        var SelectedChar = this.GameCharacterArray[index];
+        console.log(`selected character ${SelectedChar.name} select1 ${this.select1} select2 ${this.select2}`)
+        if (this.select1 == undefined) {
+            SelectedChar.renderSelected();
+            this.select1 = index;
+        }
+        if (this.select2 == undefined && this.select1 != index) {
+            SelectedChar.renderSelected();
+            this.select2 = index;
+        }
+        if (this.select1 !== undefined && this.select2 !== undefined) {
+            setTimeout(function () { alert("you have selected your characters "); }, 500);
+            this.playerCharacters.push(this.GameCharacterArray[this.select1]);
+            this.playerCharacters.push(this.GameCharacterArray[this.select2]);
+            console.log(this.playerCharacters);
+        }
+    }
+
+    BegingBattle(){
+
+    }
 
 }
 //end of battlegame class 
 $(document).ready(function () {
 
-const test2 = new BattleGame(characterArray, "#character-select", "#character-select", "#character-select");
+    const test2 = new BattleGame(characterArray, "#character-select", "#character-select", "#character-select");
 
 
 
 
 
 
-$('.character-Option').click(function() {
-    
-  });
+    $('.character-Option').click(function () {
+        var id = $(this).attr('id');
+        console.log(id);
+        switch (test2.Stage) {
+            case "select-character":
+                test2.CharacterSelectionHandler(id);
+                break;
+
+            default:
+                break;
+        }
+    });
 
 
 
-//END OF DOCUMENT READY FUNCTION
+    //END OF DOCUMENT READY FUNCTION
 });
