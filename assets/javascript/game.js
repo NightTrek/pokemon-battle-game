@@ -335,11 +335,16 @@ class BattleGame {
             this.select2 = index;
         }
         if (this.select1 !== undefined && this.select2 !== undefined) {
-            setTimeout(function () { alert("you have selected your characters "); }, 500);
+            // setTimeout(function () {  }, 500);
             this.playerCharacters.push(this.GameCharacterArray[this.select1]);
             this.playerCharacters.push(this.GameCharacterArray[this.select2]);
+            this.CharacterSelectionModal();
             console.log(this.playerCharacters);
         }
+    }
+    CharacterSelectionModal(){
+        var modal = $("#ex1");
+        modal.modal();
     }
 
     BegingBattle(){
