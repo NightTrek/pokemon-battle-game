@@ -367,7 +367,9 @@ class BattleGame {
     //Generate The initial enemy team
     GenerateEnemyTeam(){
        for(let i = 0;I>this.clength;i++){
-           if(this.playerCharacters.includes)
+           if(this.playerCharacters.includes){
+               
+           }
        }
     }
 
