@@ -30,32 +30,31 @@
         <!-- character selection -->
         <div class="row">
             <div class="jumbotron-fluid">
-                <div class="container-fluid">
+                <div class="container-fluid" id="container">
                     <h3>Select Two</h3>
                     <div class="row" id="character-select"></div>
                 </div>
             </div>
             <!-- Modal HTML embedded directly into document -->
             <div id="ex1" class="modal">
-                <h2>Thanks for clicking. That felt good.</h2>
-                <p id="selectedCharacters"> </p>
-                <a href="#" rel="modal:close">Close</a>
+                <h2>Your Heros!</h2>
+                <div class="container">
+                    <div class="row" id="selectedCharacters" style="background-color: white"></div>
+                    <div class="row">
+                        <a id="reselect">
+                            <img src="./assets/img/GoBackButton.png" alt="GoBackButton">
+                        </a>
+                        <a id="continue">
+                            <img src="./assets/img/yellow-button-rounded-100px-50px.png" alt="GoBackButton">
+                        </a>
+                    </div>
+                </div>
             </div>
             <!-- Modal Jquery -->
         </div>
-        <!-- battle zone -->
-        <div class="row bg-info p-2 pt-5 mt-1">
-            <div class="col-sm-3">
-            </div>
-            <div class="col-sm-6">
-                <div class="jumbotron" id="Battle">
-
-                </div>
-            </div>
-            <div class="col-sm-3"></div>
-        </div>
+        
         <div class="row">
-
+            
         </div>
 
     </div>

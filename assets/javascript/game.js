@@ -175,7 +175,7 @@ var characterArray = [
             {
                 "name": "Infiltrate",
                 "damage": "-20",
-                "energy": "10"
+                "energy": "-10"
             }
         ],
         "playerOption": "false"
@@ -259,7 +259,8 @@ class GameCharacter {
 
         this.charBoxDiv.append(this.m1);
         this.charBoxDiv.append(this.m2);
-        this.charBoxDiv.attr("class", "shadow jumbotron col-sm-2 mr-3 pr-2 card button character-Option").attr("id", `#${this.name}`);
+        this.charBoxDiv.attr("class", "shadow col-sm-2 mr-3 pr-2 jumbotron button character-Option").attr("id", `#${this.name}`);
+        this.charBoxDiv.attr("style", "background-color: white");
         //----
         console.log(this.allowed);
         if (this.allowed == "true" || this.targetElem == "#Battle") {
@@ -273,8 +274,13 @@ class GameCharacter {
     renderSelected() {
         this.charBoxDiv.attr("style", "background-color: rgb(224, 188, 26)");
     }
-    
-    changeTarget(target){
+    renderInModal() {
+        this.targetElem.append(this.charBoxDiv);
+        this.charBoxDiv.attr("class", "shadow col-sm-6 pr-2 card button character-Option");
+        this.charBoxDiv.attr("style", "background-color: white");
+    }
+
+    changeTarget(target) {
         this.targetElem = target
     }
 
@@ -342,12 +348,73 @@ class BattleGame {
             console.log(this.playerCharacters);
         }
     }
-    CharacterSelectionModal(){
+    CharacterSelectionModal() {
         var modal = $("#ex1");
-        modal.modal();
+        modal.modal({
+            fadeDuration: 1000,
+            fadeDelay: 0.50
+        });
+        this.playerCharacters.forEach(element => {
+            element.changeTarget($("#selectedCharacters"));
+            element.renderInModal();
+
+        });
+        this.GameCharacterArray.forEach(element => {
+            element.charBoxDiv.attr("class", "shadow col-sm-4 pr-2 card button character-Option")
+        });
     }
 
-    BegingBattle(){
+    //Generate The initial enemy team
+    GenerateEnemyTeam(){
+       for(let i = 0;I>this.clength;i++){
+           if(this.playerCharacters.includes)
+       }
+    }
+
+
+    BegingBattle() {
+        $("#container").html(`<div class="row bg-info p-2 pt-5 mt-1">
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-6">
+            <div class="jumbotron" id="Battle">
+            <div class="container">
+            <div class="row" > 
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4" id="enemy-select">
+
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+            <div class="row"> 
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4" id="enemy">
+
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+            <div class="row"> 
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4" id="fighter">
+
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+            <div class="row"> 
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4" id="player-select">
+
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+        </div>
+
+            </div>
+        </div>
+        <div class="col-sm-3"></div>
+    </div>`);
+    ///END OF HTML BATTLE AREA 
+
 
     }
 
@@ -355,7 +422,7 @@ class BattleGame {
 //end of battlegame class 
 $(document).ready(function () {
 
-    const test2 = new BattleGame(characterArray, "#character-select", "#character-select", "#character-select");
+    const game = new BattleGame(characterArray, "#character-select", "#character-select", "#character-select");
 
 
 
@@ -365,14 +432,29 @@ $(document).ready(function () {
     $('.character-Option').click(function () {
         var id = $(this).attr('id');
         console.log(id);
-        switch (test2.Stage) {
+        switch (game.Stage) {
             case "select-character":
-                test2.CharacterSelectionHandler(id);
+                game.CharacterSelectionHandler(id);
                 break;
 
             default:
                 break;
         }
+    });
+
+    $("#reselect").click(function () {
+        console.log("Reslected")
+        game.playerCharacters.forEach(element => {
+            element.changeTarget($("#character-select"));
+            element.render();
+            $.modal.close();
+
+        });
+    });
+    $("#continue").click(function () {
+        game.BegingBattle();
+        $.modal.close();
+        alert("continue")
     });
 
 
