@@ -285,15 +285,17 @@ class GameCharacter {
     }
 
 
-    //Handle what to do when a game character is clicked in the selector menue
+    //Handle what to do when a game character is clicked in the selector menue changes color yelow
     renderSelected() {
         this.charBoxDiv.attr("style", "background-color: rgb(224, 188, 26)");
     }
+    //open the modal and set append the player characters to the modal
     renderInModal() {
         this.targetElem.append(this.charBoxDiv);
         this.charBoxDiv.attr("class", "shadow col-sm-6 pr-2 card button character-Option");
         this.charBoxDiv.attr("style", "background-color: white");
     }
+    // render the enemy
     renderEnemy() {
         this.targetElem.append(this.charBoxDiv);
         this.charBoxDiv.attr("class", "shadow col-sm-3 m-auto my-3 card button character-Option");
@@ -303,21 +305,27 @@ class GameCharacter {
     renderFighter() {
         this.m1 = $(`<button>`);
         this.m2 = $(`<button>`);
+        this.m1.text(`${this.moves[0].name} D:${this.moves[0].damage} E:${this.moves[0].energy}`).attr("id","attack").attr("class", "rounded");
+        this.m2.text(`${this.moves[1].name} D:${this.moves[1].damage} E:${this.moves[1].energy}`).attr("id","attack2").attr("class", "rounded");
+        this.charBoxDiv.append(this.m1);
+        this.charBoxDiv.append(this.m2);
+
         this.targetElem.append(this.charBoxDiv);
-        this.charBoxDiv.attr("class", "shadow col-sm-3 m-auto my-3 card button character-Option");
+        this.charBoxDiv.attr("class", "shadow col-sm-3 m-auto my-3 pb-2 card button character-Option");
         this.charBoxDiv.attr("style", "background-color: white");
     }
+    //render the benched enemy or team mates into the target element
     renderbenched() {
         this.targetElem.append(this.charBoxDiv);
         this.charBoxDiv.attr("class", "shadow col-sm-4 mb-3 card button character-Option");
         this.charBoxDiv.attr("style", "background-color: white");
     }
 
-    //requiered a jquery object to be input
+    //requiered a jquery object to be input changes the Player target
     changeTarget(target) {
         this.targetElem = target
     }
-
+    // print the GameCharacters object
     printAll() {
         console.log(this);
     }
@@ -329,14 +337,28 @@ class GameCharacter {
 //var test = new GameCharacter(characterArray[0], "#character-select");
 //test.printAll();
 
-//gameState objects which keeps score and keeps
+//gameState objects which keeps score and and runs the game
 //player score
 //game Level 
-//
-//stages {select-character} {battle-character} 
+//clength is the totally number of possible game characters player usable and not
+//select1 and select2 int index are the players selections during the initial character selection stage
+//stages string{select-character} {battle-character} 
+//playerCharacters[] is an array of chosen player characters.
+// enemyteam[] is the array of enemy team GameCharacter objects
+//battle bool is true if the battle has started
+//Functions-----------------------------------
+
+//constructor( takes GameCharacters Array of JSON above, characterDisplay initial target) loops tthrough 
+//gamecharacterArray and makes GameCharacter object.
+//getCharacterById(takes id jquery) loops through gameCharacterArray and returns the GameCharacterArray index of the item
+//CharacterSelectionHandler(id) selects 2 game characters and adds them to player choices array
+//CharacterSelectionModal() pops up and shows you the two choices and allows you to reselect or continue to the battle
+//GenerateEnemyTeam(level int) Generates an array of enemy team members that do not include the playersCharacters 
+//generateControlButtons(target) switch character button and next turn button
+//beginBattle() wipes and reRenders the screen with the battle arena and renders the initial characters and buttons.
 class BattleGame {
     //constructor
-    constructor(GameCharacters, characterdisplay, battledisplay, scoredisplay) {
+    constructor(GameCharacters, characterdisplay) {
         //first we populate the characters from the attached json in GameCharacterArray
         this.GameCharacterArray = [];
         GameCharacters.forEach(element => {
@@ -355,6 +377,7 @@ class BattleGame {
     }
     //end of constructor
 
+    //gets the idex of gameCharacter for that id
     getCharacterById(id) {
         console.log("getting character id")
         for (var count = 0; count < this.clength; count++) {
@@ -364,6 +387,7 @@ class BattleGame {
         }
     }
 
+    //handles Selection of Two Game Character object and builds the playerCharacter array as well as the select1 and select2 index
     CharacterSelectionHandler(id) {
         let index = this.getCharacterById(id);
         var SelectedChar = this.GameCharacterArray[index];
@@ -386,6 +410,8 @@ class BattleGame {
             console.log(this.playerCharacters);
         }
     }
+
+
     CharacterSelectionModal() {
         var modal = $("#ex1");
         modal.modal({
@@ -425,6 +451,14 @@ class BattleGame {
 
     }
 
+    //Generates the Control buttons and renders them to the target element
+    generateControlButtons(target){
+        let empty = $(`<div`).attr("class","col-sm-4");
+        let switchchar = $(`<button>`);
+        let nextTurn = $(`<button>`).attr("class","col-sm-2 rounded shadow");
+        switchchar.attr("class", "col-sm-2");
+
+    }
 
     BegingBattle() {
         console.log("begin battle");
@@ -462,7 +496,7 @@ class BattleGame {
         for (let i = 0; i < this.enemyteam.length; i++) {
             if (i == 0) {
                 this.enemyteam[i].changeTarget($("#enemy"));
-                this.enemyteam[i].renderFighter();
+                this.enemyteam[i].renderEnemy();
                 console.log(`render fighter`)
             }
             if (i > 0) {
@@ -481,6 +515,7 @@ class BattleGame {
                 this.playerCharacters[i].renderbenched();
             }
         }
+        this.generateControlButtons()
     }
 
 }
@@ -524,11 +559,19 @@ $(document).ready(function () {
         game.select2 = undefined;
         $.modal.close();
     });
+
     $("#continue").click(function () {
         game.BegingBattle();
         $.modal.close();
     });
 
+    $("#attack").click(function () {
+        
+    });
+
+    $("#attack2").click(function () {
+        
+    });
 
 
     //END OF DOCUMENT READY FUNCTION
