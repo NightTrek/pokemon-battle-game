@@ -28,7 +28,8 @@ var characterArray = [
                 "energy": "50"
             }
         ],
-        "playerOption": "true"
+        "playerOption": "true",
+        "playerPick": "false"
     },
     {
         "name": "bulbasaur",
@@ -58,7 +59,8 @@ var characterArray = [
                 "energy": "-40"
             }
         ],
-        "playerOption": "true"
+        "playerOption": "true",
+        "playerPick": "false"
     },
     {
         "name": "charmander",
@@ -88,7 +90,8 @@ var characterArray = [
                 "energy": "-25"
             }
         ],
-        "playerOption": "true"
+        "playerOption": "true",
+        "playerPick": "false"
     },
     {
         "name": "onix",
@@ -118,7 +121,8 @@ var characterArray = [
                 "energy": "60"
             }
         ],
-        "playerOption": "true"
+        "playerOption": "true",
+        "playerPick": "false"
     },
     {
         "name": "blastoise",
@@ -148,7 +152,8 @@ var characterArray = [
                 "energy": "75"
             }
         ],
-        "playerOption": "true"
+        "playerOption": "true",
+        "playerPick": "false"
     },
     {
         "name": "crobat",
@@ -178,7 +183,8 @@ var characterArray = [
                 "energy": "-10"
             }
         ],
-        "playerOption": "false"
+        "playerOption": "false",
+        "playerPick": "false"
     },
     {
         "name": "gastly",
@@ -208,13 +214,21 @@ var characterArray = [
                 "energy": "40"
             }
         ],
-        "playerOption": "false"
+        "playerOption": "false",
+        "playerPick": "false"
     }
 ];
 
 
 /// Character Data END -------------------------------------------------------------------------------------------------------------------
 console.log(characterArray);
+//utility methods
+let getRandomInt = function (max) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
+
+//utils end
 
 //the game character class ---------------------------------------------------------------------------
 //name 
@@ -243,14 +257,15 @@ class GameCharacter {
         this.defence = char.defence;
         this.moves = char.moves;
         this.allowed = char.playerOption;
-        this.ID = `#${this.name}`
+        this.playerPick = char.playerPick;
+        this.ID = `#${this.name}`;
         this.render();
     }
 
     render() {
         this.nameDiv.text(this.name);
         this.charBoxDiv.append(this.nameDiv);
-        this.imgDiv.attr("src", this.img).attr("width", "100px");
+        this.imgDiv.attr("src", this.img).attr("width", "100px").attr("class", "pokeimg");
         this.charBoxDiv.append(this.imgDiv);
         this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
         this.charBoxDiv.append(this.bottomRow);
@@ -259,7 +274,7 @@ class GameCharacter {
 
         this.charBoxDiv.append(this.m1);
         this.charBoxDiv.append(this.m2);
-        this.charBoxDiv.attr("class", "shadow col-sm-2 mr-3 pr-2 jumbotron button character-Option").attr("id", `#${this.name}`);
+        this.charBoxDiv.attr("class", "shadow col-sm-2 mr-3 pr-2 jumbotron button character-Option pokemonCard").attr("id", `#${this.name}`);
         this.charBoxDiv.attr("style", "background-color: white");
         //----
         console.log(this.allowed);
@@ -279,7 +294,26 @@ class GameCharacter {
         this.charBoxDiv.attr("class", "shadow col-sm-6 pr-2 card button character-Option");
         this.charBoxDiv.attr("style", "background-color: white");
     }
+    renderEnemy() {
+        this.targetElem.append(this.charBoxDiv);
+        this.charBoxDiv.attr("class", "shadow col-sm-3 m-auto my-3 card button character-Option");
+        this.charBoxDiv.attr("style", "background-color: white");
+    }
 
+    renderFighter() {
+        this.m1 = $(`<button>`);
+        this.m2 = $(`<button>`);
+        this.targetElem.append(this.charBoxDiv);
+        this.charBoxDiv.attr("class", "shadow col-sm-3 m-auto my-3 card button character-Option");
+        this.charBoxDiv.attr("style", "background-color: white");
+    }
+    renderbenched() {
+        this.targetElem.append(this.charBoxDiv);
+        this.charBoxDiv.attr("class", "shadow col-sm-4 mb-3 card button character-Option");
+        this.charBoxDiv.attr("style", "background-color: white");
+    }
+
+    //requiered a jquery object to be input
     changeTarget(target) {
         this.targetElem = target
     }
@@ -314,6 +348,8 @@ class BattleGame {
         this.select2;
         this.Stage = "select-character"
         this.playerCharacters = [];
+        this.enemyteam = [];
+        this.battle = false;
 
 
     }
@@ -335,12 +371,14 @@ class BattleGame {
         if (this.select1 == undefined) {
             SelectedChar.renderSelected();
             this.select1 = index;
+            this.playerPick = true;
         }
         if (this.select2 == undefined && this.select1 != index) {
             SelectedChar.renderSelected();
             this.select2 = index;
+            this.playerPick = true;
         }
-        if (this.select1 !== undefined && this.select2 !== undefined) {
+        if (this.select1 != undefined && this.select2 != undefined && this.battle != true) {
             // setTimeout(function () {  }, 500);
             this.playerCharacters.push(this.GameCharacterArray[this.select1]);
             this.playerCharacters.push(this.GameCharacterArray[this.select2]);
@@ -359,72 +397,101 @@ class BattleGame {
             element.renderInModal();
 
         });
-        this.GameCharacterArray.forEach(element => {
-            element.charBoxDiv.attr("class", "shadow col-sm-4 pr-2 card button character-Option")
-        });
     }
 
-    //Generate The initial enemy team
-    GenerateEnemyTeam(){
-       for(let i = 0;I>this.clength;i++){
-           if(this.playerCharacters.includes){
-               
-           }
-       }
+    //Generate The initial enemy team returns an array of team members
+    GenerateEnemyTeam(level) {
+        var output = [];
+        console.log(`generating enemy team`);
+        switch (level) {
+            case 1:
+                console.log("case 1");
+                for (let x = 0; x < 2;) {
+                    var choice = getRandomInt(this.clength);
+                    console.log(choice);
+                    if (this.GameCharacterArray[choice] != this.playerCharacters[0] && this.GameCharacterArray[choice] != this.playerCharacters[1] && this.GameCharacterArray[choice] != this.playerCharacters[2] && this.GameCharacterArray[choice] != output[0]) {
+                        output.push(this.GameCharacterArray[choice]);
+                        x++;
+                    }
+                }
+                return output;
+            case 2:
+                console.log("case 2");
+                output.push(this.GameCharacterArray[this.clength]);
+                output.push(this.GameCharacterArray[this.clength - 1]);
+                return output;
+
+        }
+
     }
 
 
     BegingBattle() {
+        console.log("begin battle");
+        this.battle = true;
         $("#container").html(`<div class="row bg-info p-2 pt-5 mt-1">
-        <div class="col-sm-3">
+        <div class="col-sm-1">
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-10">
             <div class="jumbotron" id="Battle">
-            <div class="container">
-            <div class="row" > 
-                <div class="col-sm-4"></div>
-                <div class="col-sm-4" id="enemy-select">
+                <div class="container">
+                    <div class="row" id="enemy-select">
 
-                </div>
-                <div class="col-sm-4"></div>
-            </div>
-            <div class="row"> 
-                <div class="col-sm-4"></div>
-                <div class="col-sm-4" id="enemy">
+                    </div>
+                    <!-- enemy bench above enemy fighter below -->
+                    <div class="row" id="enemy">
+                    
+                    </div>
+                    <div class="row m-1"></div>
+                    <!-- player fighter below -->
+                    <div class="row mb-5 pb-1" id="fighter">
+                        
+                    </div>
+                    <!-- player bench -->
+                    <div class="row" id="player-select">
 
+                    </div>
                 </div>
-                <div class="col-sm-4"></div>
-            </div>
-            <div class="row"> 
-                <div class="col-sm-4"></div>
-                <div class="col-sm-4" id="fighter">
-
-                </div>
-                <div class="col-sm-4"></div>
-            </div>
-            <div class="row"> 
-                <div class="col-sm-4"></div>
-                <div class="col-sm-4" id="player-select">
-
-                </div>
-                <div class="col-sm-4"></div>
-            </div>
-        </div>
 
             </div>
         </div>
-        <div class="col-sm-3"></div>
+        <div class="col-sm-1"></div>
     </div>`);
-    ///END OF HTML BATTLE AREA 
-
-
+        ///END OF HTML BATTLE AREA 
+        this.enemyteam = this.GenerateEnemyTeam(1);
+        for (let i = 0; i < this.enemyteam.length; i++) {
+            if (i == 0) {
+                this.enemyteam[i].changeTarget($("#enemy"));
+                this.enemyteam[i].renderFighter();
+                console.log(`render fighter`)
+            }
+            if (i > 0) {
+                this.enemyteam[i].changeTarget($('#enemy-select'));
+                this.enemyteam[i].renderbenched();
+            }
+        }
+        for (let i = 0; i < this.playerCharacters.length; i++) {
+            if (i == 0) {
+                this.playerCharacters[i].changeTarget($("#fighter"));
+                this.playerCharacters[i].renderFighter();
+                console.log(`render fighter`)
+            }
+            if (i > 0) {
+                this.playerCharacters[i].changeTarget($('#player-select'));
+                this.playerCharacters[i].renderbenched();
+            }
+        }
     }
 
 }
 //end of battlegame class 
+
+
+const game = new BattleGame(characterArray, "#character-select", "#character-select", "#character-select");
+
 $(document).ready(function () {
 
-    const game = new BattleGame(characterArray, "#character-select", "#character-select", "#character-select");
+
 
 
 
@@ -449,14 +516,17 @@ $(document).ready(function () {
         game.playerCharacters.forEach(element => {
             element.changeTarget($("#character-select"));
             element.render();
-            $.modal.close();
+
 
         });
+        game.playerCharacters = [];
+        game.select1 = undefined;
+        game.select2 = undefined;
+        $.modal.close();
     });
     $("#continue").click(function () {
         game.BegingBattle();
         $.modal.close();
-        alert("continue")
     });
 
 
