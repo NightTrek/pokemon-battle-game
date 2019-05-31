@@ -259,6 +259,8 @@ class GameCharacter {
         this.allowed = char.playerOption;
         this.playerPick = char.playerPick;
         this.ID = `#${this.name}`;
+        this.enemiesLoaded = false;
+        this.fighterLoaded = false;
         this.render();
     }
 
@@ -297,22 +299,56 @@ class GameCharacter {
     }
     // render the enemy
     renderEnemy() {
-        this.targetElem.append(this.charBoxDiv);
-        this.charBoxDiv.attr("class", "shadow col-sm-3 m-auto my-3 card button character-Option");
-        this.charBoxDiv.attr("style", "background-color: white");
+        if (this.enemiesLoaded == false) {
+
+            this.charBoxDiv.append(this.nameDiv);
+            this.imgDiv.attr("src", this.img).attr("width", "100px").attr("class", "pokeimg character-Option").attr("id", `#${this.name}`);
+            this.charBoxDiv.append(this.imgDiv);
+            this.charBoxDiv.append(this.bottomRow);
+            this.charBoxDiv.append(this.m1);
+            this.charBoxDiv.append(this.m2);
+            this.charBoxDiv.attr("class", "shadow col-sm-3 m-auto my-3 card button character-Option");
+            this.charBoxDiv.attr("style", "background-color: white");
+            this.targetElem.append(this.charBoxDiv);
+            this.enemiesLoaded = true;
+        }
+        this.nameDiv.text(this.name);
+        this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
+        this.m1.text(`${this.moves[0].name} D:${this.moves[0].damage} E:${this.moves[0].energy}`);
+        this.m2.text(`${this.moves[1].name} D:${this.moves[1].damage} E:${this.moves[1].energy}`);
     }
 
     renderFighter() {
-        this.m1 = $(`<button>`);
-        this.m2 = $(`<button>`);
+        if (this.fighterLoaded == false) {
+            // this.charBoxDiv.append(this.nameDiv);
+            // this.imgDiv.attr("src", this.img).attr("width", "100px").attr("class", "pokeimg character-Option").attr("id", `#${this.name}`);
+            // this.charBoxDiv.append(this.imgDiv);
+            // this.charBoxDiv.append(this.bottomRow);
+            this.charBoxDiv = $(`<div>`)
+            this.nameDiv.text(this.name);
+            this.charBoxDiv.append(this.nameDiv);
+            this.imgDiv.attr("src", this.img).attr("width", "100px").attr("class", "pokeimg character-Option").attr("id", `#${this.name}`);
+            this.charBoxDiv.append(this.imgDiv);
+            this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
+            this.charBoxDiv.append(this.bottomRow);
+            this.m1 = $(`<button>`);
+            this.m2 = $(`<button>`);
+            this.charBoxDiv.attr("class", "shadow col-sm-3 m-auto my-3 card button character-Option");
+            this.charBoxDiv.attr("style", "background-color: white");
+            this.charBoxDiv.append(this.m1)
+            this.charBoxDiv.append(this.m2)
+            this.targetElem.append(this.charBoxDiv);
+
+            this.fighterLoaded = true;
+        }
+        this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
         this.m1.text(`${this.moves[0].name} D:${this.moves[0].damage} E:${this.moves[0].energy}`).attr("id", "attack").attr("class", "rounded mb-3");
         this.m2.text(`${this.moves[1].name} D:${this.moves[1].damage} E:${this.moves[1].energy}`).attr("id", "attack2").attr("class", "rounded");
-        this.charBoxDiv.append(this.m1);
-        this.charBoxDiv.append(this.m2);
 
-        this.targetElem.append(this.charBoxDiv);
-        this.charBoxDiv.attr("class", "shadow col-sm-3 m-auto my-3 pb-2 card button");
-        this.charBoxDiv.attr("style", "background-color: white");
+
+
+        // this.charBoxDiv.attr("class", "shadow col-sm-3 m-auto my-3 pb-2 card button");
+        // this.charBoxDiv.attr("style", "background-color: white");
     }
     //render the benched enemy or team mates into the target element
     renderbenched() {
@@ -391,10 +427,10 @@ class BattleGame {
     }
 
     //returns true if this.playerturn is true;
-    getTurn(){
+    getTurn() {
         return this.PlayerTurn;
     }
-    
+
 
     //handles Selection of Two Game Character object and builds the playerCharacter array as well as the select1 and select2 index
     CharacterSelectionHandler(id) {
@@ -460,72 +496,99 @@ class BattleGame {
 
     }
 
+    //Generate Enemy Attack choice reRender both fighters and make it players turn
+    // GenerateEnemyTurn()
+
     //Generates the Control buttons and renders them to the target element
     generateControlButtons(target) {
         console.log(`generating control buttons`);
         let empty = $(`<div>`).attr("class", "col-sm-4");
         let switchchar = $(`<button>`);
         let nextTurn = $(`<button>`).text('Next Turn').attr("class", "col-sm-2 rounded shadow").attr("id", "NextTurn");
-        switchchar.text('Swap Fighter').attr("class", "col-sm-2").attr('id','SwitchChar');
+        switchchar.text('Swap Fighter').attr("class", "col-sm-2").attr('id', 'SwitchChar');
         target.append(empty).append(switchchar).append(nextTurn);
 
     }
 
 
 
-    
+
     //Status Unkown
     //Depending on this.PlayerTurn will handle player attack based on move index input or enemy attack
-    HandleAttack(x){
-        if(this.PlayerTurn = true){
+    HandleAttack(x) {
+        if (this.PlayerTurn == true) {
             console.log('Player Turn Attacking');
-            if(this.enemy.defence.no == "NA"){
-                console.log(`the enemy is not immune checking modifiers`);
-                for(let i = 0; i < this.enemy.defence.resist.length ;I++){
-                    if(this.enemy.defence.resist[i] == this.fighter.type){
-                        console.log(`the enemy resists`);
-                        this.enemy.hp -= Math.floor(this.fighter.moves[x].damage*0.8);
+            if (this.fighter.E - parseInt(this.fighter.moves[x].energy) >= 0) {
+                this.fighter.E -= this.fighter.moves[x].energy;
+                console.log('enough energy to attack')
+                if (this.enemy.defence.no !== this.fighter.type) {
+                    console.log(`the enemy is not immune checking modifiers`);
+                    for (let i = 0; i < this.enemy.defence.resist.length; i++) {
+                        if (this.enemy.defence.resist[i] == this.fighter.type) {
+                            console.log(`the enemy resists`);
+                            this.enemy.hp -= Math.floor(this.fighter.moves[x].damage * 0.8);
+                            this.PlayerTurn = false;
+                        }
+                    }
+                    for (let i = 0; i < this.enemy.defence.weak.length; i++) {
+                        if (this.enemy.defence.weak[i] == this.fighter.type) {
+                            console.log(`Its super effective`);
+                            this.enemy.hp -= Math.floor(this.fighter.moves[x].damage * 1.2);
+                            this.PlayerTurn = false;
+                        }
+                    }
+                    if (this.PlayerTurn == true) {
+                        console.log('normal attack')
+                        this.enemy.hp -= this.fighter.moves[x].damage;
                     }
                 }
-                for(let i = 0; i < this.enemy.defence.weak.length ;I++){
-                    if(this.enemy.defence.weak[i] == this.fighter.type){
-                        console.log(`Its super effective`);
-                        this.enemy.hp -= Math.floor(this.fighter.moves[x].damage*1.2);
-                    }
-                }
-            this.enemy.hp -= this.fighter.moves[x].damage;
+                this.enemy.renderEnemy();
+                this.fighter.renderFighter();
+                console.log("changing player turn");
+                this.PlayerTurn = false;
+
             }
-            this.fighter.E -= this.fighter.moves[x].energy;
-            this.enemy.renderEnemy();
-            this.fighter.renderFighter();
-            this.PlayerTurn = false;
-        }
-        else{
-            if(this.fighter.defence.no == "NA"){
-                for(let i = 0; i < this.fighter.defence.resist.length ;I++){
-                    if(this.fighter.defence.resist[i] == this.enemy.type){
-                        console.log(`the enemy resists`);
-                        this.fighter.hp -= Math.floor(this.enemy.moves[x].damage*0.8);
-                    }
-                }
-                for(let i = 0; i < this.enemy.defence.weak.length ;I++){
-                    if(this.fighter.defence.weak[i] == this.enemy.type){
-                        console.log(`Its super effective`);
-                        this.fighter.hp -= Math.floor(this.enemy.moves[x].damage*1.2);
-                    }
-                }
-            this.fighter.hp -= this.enemy.moves[x].damage;
             }
-            this.enemy.E -= this.enemy.moves[x].energy;
-            this.enemy.renderEnemy();
-            this.fighter.renderFighter();
-            this.PlayerTurn = true;
-        }
+            else if(this.PlayerTurn == false) {
+                console.log("enemy Attack");
+                if (this.enemy.E - parseInt(this.enemy.moves[x].energy) >= 0) {
+                    console.log('enough energy for attack')
+                    if (this.enemy.defence.no !== this.fighter.type) {
+                        console.log(`fighter is not immune`);
+                        for (let i = 0; i < this.fighter.defence.resist.length; i++) {
+                            if (this.fighter.defence.resist[i] == this.enemy.type) {
+                                console.log(`you are resistant`);
+                                this.fighter.hp -= Math.floor(this.enemy.moves[x].damage * 0.8);
+                                this.PlayerTurn = true;
+                            }
+                        }
+                        for (let i = 0; i < this.enemy.defence.weak.length; i++) {
+                            if (this.fighter.defence.weak[i] == this.enemy.type) {
+                                console.log(`Its super effective you take more damage`);
+                                this.fighter.hp -= Math.floor(this.enemy.moves[x].damage * 1.2);
+                                this.PlayerTurn = true;
+                            }
+                        }
+                        if (this.PlayerTurn == false) {
+                        console.log(`normal attack`);
+                        this.fighter.hp -= this.enemy.moves[x].damage;
+                        }
+                    }
+                    console.log('renering results');
+                    this.enemy.E -= this.enemy.moves[x].energy;
+                    this.enemy.renderEnemy();
+                    this.fighter.renderFighter();
+                    this.PlayerTurn = true;
+                }
+            }
+            console.log("end");
+        
     }
 
     BegingBattle() {
         console.log("begin battle");
         this.battle = true;
+        this.PlayerTurn = true;
         this.Stage = "battle";
         $("#container").html(`<div class="row bg-info p-2 pt-5 mt-1">
         <div class="col-sm-1">
@@ -572,7 +635,7 @@ class BattleGame {
             if (i == 0) {
                 this.playerCharacters[i].changeTarget($("#fighter"));
                 this.playerCharacters[i].renderFighter();
-                this.fighter= this.playerCharacters[i];
+                this.fighter = this.playerCharacters[i];
             }
             if (i > 0) {
                 this.playerCharacters[i].changeTarget($('#player-select'));
@@ -580,29 +643,27 @@ class BattleGame {
             }
         }
         this.generateControlButtons($(`#player-select`));
-        var boundGetTurn = this.getTurn.bind(this);
 
-        while (this.Stage == "battle"){
-            
 
-        }
+
         /// BATTLE EVENT HANLDERS ------------------------------------------------------------------------------------------
-        $("#attack").click(function () {
-            console.log(`Attack 1 playerturn = ${boundGetTurn}`);
-            if(boundGetTurn == true){
-            this.HandleAttack(0);
+        var that = this;
+        $("#attack").click(that, function () {
+            if (that.PlayerTurn == true) {
+                console.log("attack1");
+                that.HandleAttack(0);
             }
         });
-    
-        $("#attack2").click(function () {
-            console.log("Attack2");
-            if(boundGetTurn == true){
-            this.HandleAttack(1);
+
+        $("#attack2").click(that, function () {
+            if (that.PlayerTurn == true) {
+                console.log("attack2");
+                that.HandleAttack(1);
             }
         });
     }
 
-    
+
 
 
 }
