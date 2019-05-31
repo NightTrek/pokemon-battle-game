@@ -305,7 +305,7 @@ class GameCharacter {
     renderFighter() {
         this.m1 = $(`<button>`);
         this.m2 = $(`<button>`);
-        this.m1.text(`${this.moves[0].name} D:${this.moves[0].damage} E:${this.moves[0].energy}`).attr("id", "attack").attr("class", "rounded");
+        this.m1.text(`${this.moves[0].name} D:${this.moves[0].damage} E:${this.moves[0].energy}`).attr("id", "attack").attr("class", "rounded mb-3");
         this.m2.text(`${this.moves[1].name} D:${this.moves[1].damage} E:${this.moves[1].energy}`).attr("id", "attack2").attr("class", "rounded");
         this.charBoxDiv.append(this.m1);
         this.charBoxDiv.append(this.m2);
@@ -390,6 +390,12 @@ class BattleGame {
         }
     }
 
+    //returns true if this.playerturn is true;
+    getTurn(){
+        return this.PlayerTurn;
+    }
+    
+
     //handles Selection of Two Game Character object and builds the playerCharacter array as well as the select1 and select2 index
     CharacterSelectionHandler(id) {
         let index = this.getCharacterById(id);
@@ -456,18 +462,25 @@ class BattleGame {
 
     //Generates the Control buttons and renders them to the target element
     generateControlButtons(target) {
-        let empty = $(`<div`).attr("class", "col-sm-4");
+        console.log(`generating control buttons`);
+        let empty = $(`<div>`).attr("class", "col-sm-4");
         let switchchar = $(`<button>`);
-        let nextTurn = $(`<button>`).attr("class", "col-sm-2 rounded shadow");
-        switchchar.attr("class", "col-sm-2");
+        let nextTurn = $(`<button>`).text('Next Turn').attr("class", "col-sm-2 rounded shadow").attr("id", "NextTurn");
+        switchchar.text('Swap Fighter').attr("class", "col-sm-2").attr('id','SwitchChar');
+        target.append(empty).append(switchchar).append(nextTurn);
 
     }
 
+
+
+    
     //Status Unkown
     //Depending on this.PlayerTurn will handle player attack based on move index input or enemy attack
     HandleAttack(x){
         if(this.PlayerTurn = true){
+            console.log('Player Turn Attacking');
             if(this.enemy.defence.no == "NA"){
+                console.log(`the enemy is not immune checking modifiers`);
                 for(let i = 0; i < this.enemy.defence.resist.length ;I++){
                     if(this.enemy.defence.resist[i] == this.fighter.type){
                         console.log(`the enemy resists`);
@@ -566,17 +579,31 @@ class BattleGame {
                 this.playerCharacters[i].renderbenched();
             }
         }
-        //this.generateControlButtons()
+        this.generateControlButtons($(`#player-select`));
+        var boundGetTurn = this.getTurn.bind(this);
+
+        while (this.Stage == "battle"){
+            
+
+        }
+        /// BATTLE EVENT HANLDERS ------------------------------------------------------------------------------------------
         $("#attack").click(function () {
-            console.log("Attack2");
+            console.log(`Attack 1 playerturn = ${boundGetTurn}`);
+            if(boundGetTurn == true){
             this.HandleAttack(0);
+            }
         });
     
         $("#attack2").click(function () {
             console.log("Attack2");
+            if(boundGetTurn == true){
             this.HandleAttack(1);
+            }
         });
     }
+
+    
+
 
 }
 //end of battlegame class 
