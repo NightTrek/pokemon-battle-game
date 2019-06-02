@@ -268,7 +268,7 @@ class GameCharacter {
     render() {
         this.nameDiv.text(this.name);
         this.charBoxDiv.append(this.nameDiv);
-        this.imgDiv.attr("src", this.img).attr("width", "100px").attr("class", "pokeimg character-Option").attr("id", `#${this.name}`);
+        this.imgDiv.attr("src", this.img).attr("width", "100px").attr("class", "pokeimg");
         this.charBoxDiv.append(this.imgDiv);
         this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
         this.charBoxDiv.append(this.bottomRow);
@@ -277,10 +277,9 @@ class GameCharacter {
 
         this.charBoxDiv.append(this.m1);
         this.charBoxDiv.append(this.m2);
-        this.charBoxDiv.attr("class", "shadow col-sm-2 mr-3 pr-2 jumbotron button pokemonCard");
+        this.charBoxDiv.attr("class", "shadow col-sm-2 mr-3 pr-2 jumbotron button pokemonCard character-Option").attr("id", `#${this.name}`);
         this.charBoxDiv.attr("style", "background-color: white");
-        //----
-        console.log(this.allowed);
+        //----s
         if (this.allowed == "true" || this.targetElem == "#Battle") {
             this.targetElem.append(this.charBoxDiv);
         }
@@ -300,6 +299,7 @@ class GameCharacter {
     }
     // render the enemy
     renderEnemy() {
+        console.log(`Rendering enemy loaded: ${this.enemiesLoaded}`)
         if (this.enemiesLoaded == false) {
 
             this.charBoxDiv.append(this.nameDiv);
@@ -313,13 +313,17 @@ class GameCharacter {
             this.targetElem.append(this.charBoxDiv);
             this.enemiesLoaded = true;
         }
-        this.nameDiv.text(this.name);
+        if(this.hp <=0){
+        this.nameDiv.text(this.name+" KO!");
+
+        }
         this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
         this.m1.text(`${this.moves[0].name} D:${this.moves[0].damage} E:${this.moves[0].energy}`);
         this.m2.text(`${this.moves[1].name} D:${this.moves[1].damage} E:${this.moves[1].energy}`);
     }
 
     renderFighter() {
+        console.log(`renderFighter ${this.fighterLoaded} /// ${this.name}`)
         if (this.fighterLoaded == false) {
             this.charBoxDiv = $(`<div>`);
             this.nameDiv.text(this.name);
@@ -338,6 +342,10 @@ class GameCharacter {
 
             this.fighterLoaded = true;
         }
+        if(this.hp <=0){
+            this.nameDiv.text(this.name+" KO!");
+    
+        }
         this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
         this.m1.text(`${this.moves[0].name} D:${this.moves[0].damage} E:${this.moves[0].energy}`).attr("id", "attack").attr("class", "rounded mb-3");
         this.m2.text(`${this.moves[1].name} D:${this.moves[1].damage} E:${this.moves[1].energy}`).attr("id", "attack2").attr("class", "rounded");
@@ -349,7 +357,7 @@ class GameCharacter {
     }
     //render the benched enemy or team mates into the target element
     renderbenched() {
-        console.log(`rendering bench loaded:${this.benchLoaded}`);
+        // console.log(`rendering bench loaded:${this.benchLoaded}`);
         if (this.benchLoaded == false) {
             this.charBoxDiv = $(`<div>`);
             this.nameDiv.text(this.name);
@@ -427,6 +435,7 @@ class BattleGame {
         this.fighter;
         this.bench;
         this.enemy;
+        this.enemybench;
         this.PlayerTurn = true;
 
 
@@ -435,7 +444,7 @@ class BattleGame {
 
     //gets the idex of gameCharacter for that id
     getCharacterById(id) {
-        console.log("getting character id")
+        // console.log("getting character id")
         for (var count = 0; count < this.clength; count++) {
             if (this.GameCharacterArray[count].ID == id) {
                 return count;
@@ -453,7 +462,7 @@ class BattleGame {
     CharacterSelectionHandler(id) {
         let index = this.getCharacterById(id);
         var SelectedChar = this.GameCharacterArray[index];
-        console.log(`selected character ${SelectedChar.name} select1 ${this.select1} select2 ${this.select2}`)
+        // console.log(`selected character ${SelectedChar.name} select1 ${this.select1} select2 ${this.select2}`)
         if (this.select1 == undefined) {
             SelectedChar.renderSelected();
             this.select1 = index;
@@ -469,7 +478,7 @@ class BattleGame {
             this.playerCharacters.push(this.GameCharacterArray[this.select1]);
             this.playerCharacters.push(this.GameCharacterArray[this.select2]);
             this.CharacterSelectionModal();
-            console.log(this.playerCharacters);
+            // console.log(this.playerCharacters);
         }
     }
 
@@ -488,15 +497,16 @@ class BattleGame {
     }
 
     //Generate The initial enemy team returns an array of team members
+    //for level one it generates a random character for level two it picks the last two in the array
     GenerateEnemyTeam(level) {
         var output = [];
         console.log(`generating enemy team`);
         switch (level) {
             case 1:
-                console.log("case 1");
+                console.log("level 1");
                 for (let x = 0; x < 2;) {
                     var choice = getRandomInt(this.clength);
-                    console.log(choice);
+                    // console.log(choice);
                     if (this.GameCharacterArray[choice] != this.playerCharacters[0] && this.GameCharacterArray[choice] != this.playerCharacters[1] && this.GameCharacterArray[choice] != this.playerCharacters[2] && this.GameCharacterArray[choice] != output[0]) {
                         output.push(this.GameCharacterArray[choice]);
                         x++;
@@ -504,7 +514,7 @@ class BattleGame {
                 }
                 return output;
             case 2:
-                console.log("case 2");
+                console.log("level 2");
                 output.push(this.GameCharacterArray[this.clength]);
                 output.push(this.GameCharacterArray[this.clength - 1]);
                 return output;
@@ -513,20 +523,53 @@ class BattleGame {
 
     }
 
-    enemyHasHealingmove(){
-        this.enemy.moves.forEach()
+    enemyHasHealingmove() {
+        for (let index = 0; index < this.enemy.moves.length; index++) {
+            if (parseInt(this.enemy.moves[index].damage) < 0) {
+                return index;
+            }
+        }
+        return -1;
     }
 
     generateEnemeyAttack(){
-        this.enemy.moves
+        //check if there is a healing move and check if there is an energy recovery move
+        if(this.enemyHasHealingmove() >= 0){
+            //does of healing move
+            //if the enemies energy is lower than required to attack use healing move else use attack
+            let energymove = this.enemyHasHealingmove();
+
+            if(this.enemy.E < this.enemy.moves[0].energy){
+                console.log("enemy using energy move");
+                this.HandleAttack(energymove);
+                return;
+            }
+            console.log("normal non energy move attack");
+            this.HandleAttack(0);
+            return;
+        }
+        else if(this.enemy.E >= this.enemy.moves[0].energy || this.enemy.E >= this.enemy.moves[1].energy){
+            console.log('non energy gaining enemy has enough energy to attack');
+            let randombinary = getRandomInt(2);
+            if(this.enemy.moves[randombinary].energy <= this.enemy.E){
+                console.log(`enough enery to do attack`);
+                this.HandleAttack(randombinary);
+                return;
+            }
+            console.log("recursive");
+            this.generateEnemeyAttack();
+
+        }
+        console.log('not enoug energy to do either move');
+        this.nextTurn();
+
     }
 
-    //Generate Enemy Attack choice reRender both fighters and make it players turn
-    // GenerateEnemyTurn()
+   
 
     //Generates the Control buttons and renders them to the target element
     generateControlButtons(target) {
-        console.log(`generating control buttons`);
+        // console.log(`generating control buttons`);
         let empty = $(`<div>`).attr("class", "col-sm-4");
         let switchchar = $(`<button>`);
         let nextTurn = $(`<button>`).text('Next Turn').attr("class", "col-sm-2 rounded shadow").attr("id", "NextTurn");
@@ -538,7 +581,7 @@ class BattleGame {
 
 
 
-    //Status Unkown
+    //Status broken needs turn setting within
     //Depending on this.PlayerTurn will handle player attack based on move index input or enemy attack
     HandleAttack(x) {
         if (this.PlayerTurn == true) {
@@ -552,25 +595,31 @@ class BattleGame {
                         if (this.enemy.defence.resist[i] == this.fighter.type) {
                             console.log(`the enemy resists`);
                             this.enemy.hp -= Math.floor(this.fighter.moves[x].damage * 0.8);
-                            this.PlayerTurn = false;
+                            this.nextTurn();
+
                         }
                     }
                     for (let i = 0; i < this.enemy.defence.weak.length; i++) {
                         if (this.enemy.defence.weak[i] == this.fighter.type) {
                             console.log(`Its super effective`);
                             this.enemy.hp -= Math.floor(this.fighter.moves[x].damage * 1.2);
-                            this.PlayerTurn = false;
+                            this.nextTurn();
+
                         }
                     }
                     if (this.PlayerTurn == true) {
                         console.log('normal attack')
                         this.enemy.hp -= this.fighter.moves[x].damage;
+                        this.nextTurn();
                     }
                 }
+                console.log(`enemy and fighter log in Handler player turn is true`);
+                console.log(this.enemy);
+                console.log(this.fighter);
                 this.enemy.renderEnemy();
                 this.fighter.renderFighter();
                 console.log("changing player turn");
-                this.PlayerTurn = false;
+
 
             }
         }
@@ -584,14 +633,14 @@ class BattleGame {
                         if (this.fighter.defence.resist[i] == this.enemy.type) {
                             console.log(`you are resistant`);
                             this.fighter.hp -= Math.floor(this.enemy.moves[x].damage * 0.8);
-                            this.PlayerTurn = true;
+                            this.nextTurn();
                         }
                     }
                     for (let i = 0; i < this.enemy.defence.weak.length; i++) {
                         if (this.fighter.defence.weak[i] == this.enemy.type) {
                             console.log(`Its super effective you take more damage`);
                             this.fighter.hp -= Math.floor(this.enemy.moves[x].damage * 1.2);
-                            this.PlayerTurn = true;
+                            this.nextTurn();
                         }
                     }
                     if (this.PlayerTurn == false) {
@@ -601,16 +650,22 @@ class BattleGame {
                 }
                 console.log('renering results');
                 this.enemy.E -= this.enemy.moves[x].energy;
+                console.log(`enemy and fighter log in Handler player turn is false`);
+                console.log(this.enemy);
+                console.log(this.fighter);
                 this.enemy.renderEnemy();
                 this.fighter.renderFighter();
-                this.PlayerTurn = true;
+                this.nextTurn();
             }
         }
-        console.log("end");
+        console.log("end of attack handler");
 
     }
 
     switchCharacter() {
+        console.log(`enemy and fighter log in switchCharacters `);
+        console.log(this.enemy);
+        console.log(this.fighter);
         this.fighter.benchLoaded = false;
         this.bench.fighterLoaded = false;
         $('#fighter').empty();
@@ -623,13 +678,61 @@ class BattleGame {
         let passover = this.fighter;
         this.fighter = this.bench;
         this.bench = passover;
+        console.log(`enemy and fighter log end of switch characters`);
+        console.log(this.enemy);
+        console.log(this.fighter);
         console.log('switch Characters complete');
 
     }
 
-    nextTurn(){
-        
-        this.HandleAttack()
+    switchEnemyChar(){
+        console.log("switch enemy team ")
+        this.enemy.benchLoaded = false;
+        this.bench.fighterLoaded = false;
+        //clear the two rows 
+        $('#enemy').empty();
+        $('#enemy-select').empty();
+        //render enemy in the bench
+        this.enemy.changeTarget($('#enemy-select'));
+        this.enemy.renderbenched();
+        //render the bench as the new enemy
+        this.enemybench.changeTarget($("#enemy"));
+        this.enemybench.renderEnemy();
+
+        let passover = this.enemy;
+        this.enemy = this.enemybench;
+        this.enemybench = passover;
+        // console.log('switch Characters complete');
+    }
+
+    nextTurn() {
+        if (this.PlayerTurn == false) {
+            this.enemy.E += 10;
+            this.enemy.hp += 10;
+            this.PlayerTurn = true;
+            if(this.fighter.hp <1){
+                if(this.bench.hp<1){
+                    alert("you lost");
+                }
+            }
+            
+
+        }
+        else if (this.PlayerTurn == true) {
+            this.fighter.E += 10;
+            this.fighter.hp += 10;
+            this.PlayerTurn = false;
+            //check if both enemies are KO
+            if (this.enemy.hp <= 0) {
+                
+                if(this.enemybench.hp>0){
+                    this.switchEnemyChar();
+                }
+                alert("you win!")
+                return "victory"
+            }
+            this.generateEnemeyAttack()
+        }
     }
 
     BegingBattle() {
@@ -676,6 +779,7 @@ class BattleGame {
             if (i > 0) {
                 this.enemyteam[i].changeTarget($('#enemy-select'));
                 this.enemyteam[i].renderbenched();
+                this.enemybench = this.enemyteam[i]
             }
         }
         for (let i = 0; i < this.playerCharacters.length; i++) {
@@ -711,16 +815,17 @@ class BattleGame {
         });
         $(document).on('click', '#NextTurn', function () {
             console.log('next Turn clicked');
-            if (that.PlayerTurn == true) {
-                that.PlayerTurn = false;
-                console.log("NextTurn");
-                that.HandleAttack(getRandomInt(1));
-            }
+            // if (that.PlayerTurn == true) {
+            //     that.PlayerTurn = false;
+            //     console.log("NextTurn");
+            //     that.HandleAttack(getRandomInt(1));
+            // }
+
         });
         $(document).on('click', '#SwitchChar', function () {
-            console.log('switchChar clicked');
+            // console.log('switchChar clicked');
             if (that.PlayerTurn == true) {
-                console.log("SwitchChar");
+                // console.log("SwitchChar");
                 that.switchCharacter()
             }
         });
@@ -743,9 +848,9 @@ $(document).ready(function () {
 
 
 
-
-    $('.character-Option').click(function () {
+    $(document).on('click', '.character-Option', function () {
         var id = $(this).attr('id');
+        // console.log(`logging clicked id as ${id} and this is ${this}`);
         switch (game.battle) {
             case false:
                 game.CharacterSelectionHandler(id);
@@ -758,7 +863,7 @@ $(document).ready(function () {
 
 
     $("#reselect").click(function () {
-        console.log("Reslected")
+        // console.log("Reslected")
         game.playerCharacters.forEach(element => {
             element.changeTarget($("#character-select"));
             element.render();
