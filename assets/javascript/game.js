@@ -313,8 +313,8 @@ class GameCharacter {
             this.targetElem.append(this.charBoxDiv);
             this.enemiesLoaded = true;
         }
-        if(this.hp <=0){
-        this.nameDiv.text(this.name+" KO!");
+        if (this.hp <= 0) {
+            this.nameDiv.text(this.name + " KO!");
 
         }
         this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
@@ -342,9 +342,9 @@ class GameCharacter {
 
             this.fighterLoaded = true;
         }
-        if(this.hp <=0){
-            this.nameDiv.text(this.name+" KO!");
-    
+        if (this.hp <= 0) {
+            this.nameDiv.text(this.name + " KO!");
+
         }
         this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
         this.m1.text(`${this.moves[0].name} D:${this.moves[0].damage} E:${this.moves[0].energy}`).attr("id", "attack").attr("class", "rounded mb-3");
@@ -432,6 +432,7 @@ class BattleGame {
         this.playerCharacters = [];
         this.enemyteam = [];
         this.battle = false;
+        this.infoboard = $(`<p>`);
         this.fighter;
         this.bench;
         this.enemy;
@@ -531,16 +532,17 @@ class BattleGame {
         }
         return -1;
     }
-
-    generateEnemeyAttack(){
+    //broken
+    generateEnemeyAttack() {
         //check if there is a healing move and check if there is an energy recovery move
-        if(this.enemyHasHealingmove() >= 0){
+        if (this.enemyHasHealingmove() >= 0) {
             //does of healing move
             //if the enemies energy is lower than required to attack use healing move else use attack
             let energymove = this.enemyHasHealingmove();
 
-            if(this.enemy.E < this.enemy.moves[0].energy){
+            if (this.enemy.E < parseInt(this.enemy.moves[0].energy)) {
                 console.log("enemy using energy move");
+                console.log(this.enemy.moves[0]);
                 this.HandleAttack(energymove);
                 return;
             }
@@ -548,16 +550,21 @@ class BattleGame {
             this.HandleAttack(0);
             return;
         }
-        else if(this.enemy.E >= this.enemy.moves[0].energy || this.enemy.E >= this.enemy.moves[1].energy){
+        else if (this.enemy.E >= this.enemy.moves[0].energy || this.enemy.E >= this.enemy.moves[1].energy) {
             console.log('non energy gaining enemy has enough energy to attack');
             let randombinary = getRandomInt(2);
-            if(this.enemy.moves[randombinary].energy <= this.enemy.E){
+            if (this.enemy.moves[randombinary].energy <= this.enemy.E) {
                 console.log(`enough enery to do attack`);
                 this.HandleAttack(randombinary);
                 return;
             }
-            console.log("recursive");
-            this.generateEnemeyAttack();
+            else if (randombinary == 0) {
+                this.HandleAttack(1);
+                return
+            }
+            else if (randombinary == 1) {
+                this.HandleAttack(0);
+            }
 
         }
         console.log('not enoug energy to do either move');
@@ -565,12 +572,14 @@ class BattleGame {
 
     }
 
-   
+
 
     //Generates the Control buttons and renders them to the target element
     generateControlButtons(target) {
         // console.log(`generating control buttons`);
         let empty = $(`<div>`).attr("class", "col-sm-4");
+        this.infoboard.attr("Class", "info-board");
+        empty.append(this.infoboard);
         let switchchar = $(`<button>`);
         let nextTurn = $(`<button>`).text('Next Turn').attr("class", "col-sm-2 rounded shadow").attr("id", "NextTurn");
         switchchar.text('Swap Fighter').attr("class", "col-sm-2").attr('id', 'SwitchChar');
@@ -581,44 +590,58 @@ class BattleGame {
 
 
 
-    //Status broken needs turn setting within
+    //Status broken needs randomly makes hp 1000 for enemy or fighter
     //Depending on this.PlayerTurn will handle player attack based on move index input or enemy attack
     HandleAttack(x) {
         if (this.PlayerTurn == true) {
             console.log('Player Turn Attacking');
-            if (this.fighter.E - parseInt(this.fighter.moves[x].energy) >= 0) {
-                this.fighter.E -= this.fighter.moves[x].energy;
+            if (parseInt(this.fighter.E) - parseInt(this.fighter.moves[x].energy) >= 0) {
+                this.fighter.E = parseInt(this.fighter.E) - parseInt(this.fighter.moves[x].energy);
                 console.log('enough energy to attack')
                 if (this.enemy.defence.no !== this.fighter.type) {
                     console.log(`the enemy is not immune checking modifiers`);
                     for (let i = 0; i < this.enemy.defence.resist.length; i++) {
                         if (this.enemy.defence.resist[i] == this.fighter.type) {
-                            console.log(`the enemy resists`);
-                            this.enemy.hp -= Math.floor(this.fighter.moves[x].damage * 0.8);
+                            console.log(`the enemy resists and only deals ${Math.floor(this.fighter.moves[x].damage * 0.8)} damage`);
+                            this.infoboard.text(`the enemy resists and only deals ${Math.floor(this.fighter.moves[x].damage * 0.8)} damage`);
+                            this.enemy.hp -= Math.floor(parseInt(this.fighter.moves[x].damage) * 0.8);
+                            this.enemy.renderEnemy();
+                            this.fighter.renderFighter();
+                            console.log("end of attack handler");
                             this.nextTurn();
+                            return;
 
                         }
                     }
                     for (let i = 0; i < this.enemy.defence.weak.length; i++) {
                         if (this.enemy.defence.weak[i] == this.fighter.type) {
-                            console.log(`Its super effective`);
-                            this.enemy.hp -= Math.floor(this.fighter.moves[x].damage * 1.2);
+                            console.log(`Its super effective dealing ${Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2)} damage`);
+                            this.infoboard.text(`Its super effective dealing ${Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2)} damage`);
+                            this.enemy.hp -= Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2);
+                            this.enemy.renderEnemy();
+                            this.fighter.renderFighter();
+                            console.log("end of attack handler");
                             this.nextTurn();
+                            return;
 
                         }
                     }
                     if (this.PlayerTurn == true) {
-                        console.log('normal attack')
-                        this.enemy.hp -= this.fighter.moves[x].damage;
+                        console.log(`normal attack dealing ${parseInt(this.fighter.moves[x].damage)} damage`);
+                        this.infoboard.text(`normal attack dealing ${parseInt(this.fighter.moves[x].damage)} damage`);
+                        this.enemy.hp -= parseInt(this.fighter.moves[x].damage);
+                        this.enemy.renderEnemy();
+                        this.fighter.renderFighter();
+                        console.log("end of attack handler");
                         this.nextTurn();
+                        return;
                     }
                 }
-                console.log(`enemy and fighter log in Handler player turn is true`);
-                console.log(this.enemy);
-                console.log(this.fighter);
+                console.log(`rendering results no damage done`);
+                this.infoboard.text('enemy is immune to your attack!');
                 this.enemy.renderEnemy();
                 this.fighter.renderFighter();
-                console.log("changing player turn");
+                this.nextTurn();
 
 
             }
@@ -626,31 +649,46 @@ class BattleGame {
         else if (this.PlayerTurn == false) {
             console.log("enemy Attack");
             if (this.enemy.E - parseInt(this.enemy.moves[x].energy) >= 0) {
-                console.log('enough energy for attack')
+                console.log('enemy has enough energy for attack')
+                this.enemy.E = parseInt(this.enemy.E) - parseInt(this.enemy.moves[x].energy);
                 if (this.enemy.defence.no !== this.fighter.type) {
                     console.log(`fighter is not immune`);
                     for (let i = 0; i < this.fighter.defence.resist.length; i++) {
                         if (this.fighter.defence.resist[i] == this.enemy.type) {
-                            console.log(`you are resistant`);
-                            this.fighter.hp -= Math.floor(this.enemy.moves[x].damage * 0.8);
+                            console.log(`you are resistant and deals only ${Math.floor(this.enemy.moves[x].damage * 0.8)} damage`);
+                            this.infoboard.text(`you are resistant and deals only ${Math.floor(this.enemy.moves[x].damage * 0.8)} damage`);
+                            this.fighter.hp -= Math.floor(parseInt(this.enemy.moves[x].damage) * 0.8);
+                            this.enemy.renderEnemy();
+                            this.fighter.renderFighter();
+                            console.log("end of attack handler");
                             this.nextTurn();
+                            return;
                         }
                     }
                     for (let i = 0; i < this.enemy.defence.weak.length; i++) {
                         if (this.fighter.defence.weak[i] == this.enemy.type) {
-                            console.log(`Its super effective you take more damage`);
-                            this.fighter.hp -= Math.floor(this.enemy.moves[x].damage * 1.2);
+                            console.log(`Its super effective you take ${Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2)} damage`);
+                            this.infoboard.text(`Its super effective you take ${Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2)} damage`);
+                            this.fighter.hp -= Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2);
+                            this.enemy.renderEnemy();
+                            this.fighter.renderFighter();
+                            console.log("end of attack handler");
                             this.nextTurn();
+                            return;
                         }
                     }
                     if (this.PlayerTurn == false) {
-                        console.log(`normal attack`);
-                        this.fighter.hp -= this.enemy.moves[x].damage;
+                        console.log(`normal attack deals only ${parseInt(this.enemy.moves[x].damage)}`);
+                        this.infoboard.text(`normal attack deals only ${parseInt(this.enemy.moves[x].damage)}`);
+                        this.fighter.hp -= parseInt(this.enemy.moves[x].damage);
+                        this.enemy.renderEnemy();
+                        this.fighter.renderFighter();
+                        console.log("end of attack handler");
+                        return;
                     }
                 }
-                console.log('renering results');
-                this.enemy.E -= this.enemy.moves[x].energy;
-                console.log(`enemy and fighter log in Handler player turn is false`);
+                console.log('renering results no damage done');
+                this.infoboard.text(`no damage done you are immune too their attack!`);
                 console.log(this.enemy);
                 console.log(this.fighter);
                 this.enemy.renderEnemy();
@@ -685,7 +723,7 @@ class BattleGame {
 
     }
 
-    switchEnemyChar(){
+    switchEnemyChar() {
         console.log("switch enemy team ")
         this.enemy.benchLoaded = false;
         this.bench.fighterLoaded = false;
@@ -710,12 +748,12 @@ class BattleGame {
             this.enemy.E += 10;
             this.enemy.hp += 10;
             this.PlayerTurn = true;
-            if(this.fighter.hp <1){
-                if(this.bench.hp<1){
+            if (this.fighter.hp < 1) {
+                if (this.bench.hp < 1) {
                     alert("you lost");
                 }
             }
-            
+
 
         }
         else if (this.PlayerTurn == true) {
@@ -724,8 +762,8 @@ class BattleGame {
             this.PlayerTurn = false;
             //check if both enemies are KO
             if (this.enemy.hp <= 0) {
-                
-                if(this.enemybench.hp>0){
+
+                if (this.enemybench.hp > 0) {
                     this.switchEnemyChar();
                 }
                 alert("you win!")
