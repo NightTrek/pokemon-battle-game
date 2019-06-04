@@ -250,8 +250,8 @@ class GameCharacter {
         this.m2 = $("<p>");
         this.name = char.name;
         this.type = char.type;
-        this.hp = char.HP;
-        this.E = char.energy
+        this.hp = parseInt(char.HP);
+        this.E = parseInt(char.energy)
         this.img = char.imgURL;
         this.attack = char.attack;
         this.defence = char.defence;
@@ -648,9 +648,9 @@ class BattleGame {
         }
         else if (this.PlayerTurn == false) {
             console.log("enemy Attack");
-            if (this.enemy.E - parseInt(this.enemy.moves[x].energy) >= 0) {
+            if (parseInt(this.enemy.E) - parseInt(this.enemy.moves[x].energy) >= 0) {
                 console.log('enemy has enough energy for attack')
-                this.enemy.E = parseInt(this.enemy.E) - parseInt(this.enemy.moves[x].energy);
+                parseInt(this.enemy.E) = parseInt(this.enemy.E) - parseInt(this.enemy.moves[x].energy);
                 if (this.enemy.defence.no !== this.fighter.type) {
                     console.log(`fighter is not immune`);
                     for (let i = 0; i < this.fighter.defence.resist.length; i++) {
