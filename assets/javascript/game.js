@@ -86,7 +86,7 @@ var characterArray = [
             },
             {
                 "name": "solar power",
-                "damage": "10",
+                "damage": "5",
                 "energy": "-25"
             }
         ],
@@ -118,7 +118,7 @@ var characterArray = [
             {
                 "name": "tunnel",
                 "damage": "-20",
-                "energy": "60"
+                "energy": "-60"
             }
         ],
         "playerOption": "true",
@@ -149,7 +149,7 @@ var characterArray = [
             {
                 "name": "Rain dish",
                 "damage": "-20",
-                "energy": "75"
+                "energy": "-75"
             }
         ],
         "playerOption": "true",
@@ -180,7 +180,7 @@ var characterArray = [
             {
                 "name": "Infiltrate",
                 "damage": "-20",
-                "energy": "-10"
+                "energy": "-20"
             }
         ],
         "playerOption": "false",
@@ -205,7 +205,7 @@ var characterArray = [
         "moves": [
             {
                 "name": "sleep",
-                "damage": "0",
+                "damage": "10",
                 "energy": "10"
             },
             {
@@ -262,6 +262,7 @@ class GameCharacter {
         this.enemiesLoaded = false;
         this.fighterLoaded = false;
         this.benchLoaded = false;
+        this.KO = false;
         this.render();
     }
 
@@ -315,6 +316,7 @@ class GameCharacter {
         }
         if (this.hp <= 0) {
             this.nameDiv.text(this.name + " KO!");
+            this.KO = true;
 
         }
         this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
@@ -344,7 +346,7 @@ class GameCharacter {
         }
         if (this.hp <= 0) {
             this.nameDiv.text(this.name + " KO!");
-
+            this.KO = true;
         }
         this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
         this.m1.text(`${this.moves[0].name} D:${this.moves[0].damage} E:${this.moves[0].energy}`).attr("id", "attack").attr("class", "rounded mb-3");
@@ -438,6 +440,7 @@ class BattleGame {
         this.enemy;
         this.enemybench;
         this.PlayerTurn = true;
+        this.playerMoved = false;
 
 
     }
@@ -590,7 +593,7 @@ class BattleGame {
 
 
 
-    //Status broken needs randomly makes hp 1000 for enemy or fighter
+    //Status unkown need to fix KO system.
     //Depending on this.PlayerTurn will handle player attack based on move index input or enemy attack
     HandleAttack(x) {
         if (this.PlayerTurn == true) {
@@ -650,7 +653,7 @@ class BattleGame {
             console.log("enemy Attack");
             if (parseInt(this.enemy.E) - parseInt(this.enemy.moves[x].energy) >= 0) {
                 console.log('enemy has enough energy for attack')
-                parseInt(this.enemy.E) = parseInt(this.enemy.E) - parseInt(this.enemy.moves[x].energy);
+                this.enemy.E = parseInt(this.enemy.E) - parseInt(this.enemy.moves[x].energy);
                 if (this.enemy.defence.no !== this.fighter.type) {
                     console.log(`fighter is not immune`);
                     for (let i = 0; i < this.fighter.defence.resist.length; i++) {
@@ -702,8 +705,6 @@ class BattleGame {
 
     switchCharacter() {
         console.log(`enemy and fighter log in switchCharacters `);
-        console.log(this.enemy);
-        console.log(this.fighter);
         this.fighter.benchLoaded = false;
         this.bench.fighterLoaded = false;
         $('#fighter').empty();
@@ -716,9 +717,6 @@ class BattleGame {
         let passover = this.fighter;
         this.fighter = this.bench;
         this.bench = passover;
-        console.log(`enemy and fighter log end of switch characters`);
-        console.log(this.enemy);
-        console.log(this.fighter);
         console.log('switch Characters complete');
 
     }
@@ -766,8 +764,10 @@ class BattleGame {
                 if (this.enemybench.hp > 0) {
                     this.switchEnemyChar();
                 }
+                else{
                 alert("you win!")
                 return "victory"
+                }
             }
             this.generateEnemeyAttack()
         }
@@ -853,11 +853,7 @@ class BattleGame {
         });
         $(document).on('click', '#NextTurn', function () {
             console.log('next Turn clicked');
-            // if (that.PlayerTurn == true) {
-            //     that.PlayerTurn = false;
-            //     console.log("NextTurn");
-            //     that.HandleAttack(getRandomInt(1));
-            // }
+            that.nextTurn();
 
         });
         $(document).on('click', '#SwitchChar', function () {
