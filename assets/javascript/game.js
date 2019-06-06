@@ -438,13 +438,19 @@ class BattleGame {
         this.playerCharacters = [];
         this.enemyteam = [];
         this.battle = false;
-        this.infoboard = $(`<p>`);
+        this.infoboard = $(`<div>`);
+        this.infoArray = [];
+        this.infoboardloaded = false;
         this.fighter;
         this.bench;
         this.enemy;
         this.enemybench;
         this.PlayerTurn = true;
         this.playerMoved = false;
+        //stats//
+        this.movecount = 0;
+        this.damagedelt = 0;
+        this.damagerecived = 0;
 
 
     }
@@ -530,7 +536,7 @@ class BattleGame {
         }
 
     }
-
+    //seems to be broken or generator is flawed in this regard
     enemyHasHealingmove() {
         for (let index = 0; index < this.enemy.moves.length; index++) {
             if (parseInt(this.enemy.moves[index].damage) < 0) {
@@ -594,7 +600,58 @@ class BattleGame {
 
     }
 
+    updateinfoBoard(string) {
+        let newDiv = $("<p>").text(string);
+        this.infoArray.push(newDiv);
+        this.infoboard.text('');
+        for (let i = 0; i < this.infoArray.length; i++) {
+            this.infoboard.append(this.infoArray[i]);
+        }
+        if (this.infoboardloaded == true) {
+            this.infoArray.splice(0, 1);
+        }
+        else {
+            this.infoboardloaded = true;
+        }
+    }
 
+
+    winLossModal(string) {
+        var modal = $("#ex2");
+        switch (string) {
+            case "win":
+                modal.modal({
+                    fadeDuration: 1000,
+                    fadeDelay: 0.50
+                });
+                $('#result').text(` congragulations you ${string} `)
+                $('#stat1').text(` Damage inflicted on the enemy: ${this.damagedelt}`);
+                $('#stat2').text(` Damage inflicted on your team : ${this.damagerecived}`);
+                $('#stat3').text(` Number of Turns during this battle: ${this.movecount}`);
+
+            case "loss":
+                modal.modal({
+                    fadeDuration: 1000,
+                    fadeDelay: 0.50
+                });
+                $('#result').text(` sorry you ${string} better luck next time!`)
+                $('#stat1').text(` Damage inflicted on the enemy: ${this.damagedelt}`);
+                $('#stat2').text(` Damage inflicted on your team : ${this.damagerecived}`);
+                $('#stat3').text(` Number of Turns during this battle: ${this.movecount}`);
+
+            case "draw":
+                modal.modal({
+                    fadeDuration: 1000,
+                    fadeDelay: 0.50
+                });
+                $('#result').text(` this battle ended in a ${string} wow thats rare`)
+                $('#stat1').text(` Damage inflicted on the enemy: ${this.damagedelt}`);
+                $('#stat2').text(` Damage inflicted on your team : ${this.damagerecived}`);
+                $('#stat3').text(` Number of Turns during this battle: ${this.movecount}`);
+
+
+        }
+    }
 
 
     //Status unkown need to fix KO system.
@@ -610,9 +667,10 @@ class BattleGame {
                     for (let i = 0; i < this.enemy.defence.resist.length; i++) {
                         if (this.enemy.defence.resist[i] == this.fighter.type) {
                             console.log(`the enemy resists and only deals ${Math.floor(this.fighter.moves[x].damage * 0.8)} damage`);
-                            this.infoboard.text(`the enemy resists and only deals ${Math.floor(this.fighter.moves[x].damage * 0.8)} damage`);
+                            this.updateinfoBoard(`the enemy resists and only deals ${Math.floor(this.fighter.moves[x].damage * 0.8)} damage`);
                             console.log(`enemy hp:${this.enemy.hp} current attack damage: ${parseInt(this.fighter.moves[x].damage)} `);
                             this.enemy.hp -= Math.floor(parseInt(this.fighter.moves[x].damage) * 0.8);
+                            this.damagedelt += Math.floor(parseInt(this.fighter.moves[x].damage) * 0.8);
                             this.enemy.renderEnemy();
                             this.fighter.renderFighter();
                             console.log("end of attack handler");
@@ -624,9 +682,10 @@ class BattleGame {
                     for (let i = 0; i < this.enemy.defence.weak.length; i++) {
                         if (this.enemy.defence.weak[i] == this.fighter.type) {
                             console.log(`Its super effective dealing ${Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2)} damage`);
-                            this.infoboard.text(`Its super effective dealing ${Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2)} damage`);
+                            this.updateinfoBoard(`Its super effective dealing ${Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2)} damage`);
                             console.log(`enemy hp:${this.enemy.hp} current attack damage: ${parseInt(this.fighter.moves[x].damage)} `);
                             this.enemy.hp -= Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2);
+                            this.damagedelt += Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2);
                             this.enemy.renderEnemy();
                             this.fighter.renderFighter();
                             console.log("end of attack handler");
@@ -637,9 +696,10 @@ class BattleGame {
                     }
                     if (this.PlayerTurn == true) {
                         console.log(`normal attack dealing ${parseInt(this.fighter.moves[x].damage)} damage`);
-                        this.infoboard.text(`normal attack dealing ${parseInt(this.fighter.moves[x].damage)} damage`);
+                        this.updateinfoBoard(`normal attack dealing ${parseInt(this.fighter.moves[x].damage)} damage`);
                         console.log(`enemy hp:${this.enemy.hp} current attack damage: ${parseInt(this.fighter.moves[x].damage)} `);
                         this.enemy.hp -= parseInt(this.fighter.moves[x].damage);
+                        this.damagedelt += parseInt(this.fighter.moves[x].damage);
                         this.enemy.renderEnemy();
                         this.fighter.renderFighter();
                         console.log("end of attack handler");
@@ -648,7 +708,7 @@ class BattleGame {
                     }
                 }
                 console.log(`rendering results no damage done`);
-                this.infoboard.text('enemy is immune to your attack!');
+                this.updateinfoBoard('enemy is immune to your attack!');
                 this.enemy.renderEnemy();
                 this.fighter.renderFighter();
                 this.nextTurn();
@@ -666,9 +726,10 @@ class BattleGame {
                     for (let i = 0; i < this.fighter.defence.resist.length; i++) {
                         if (this.fighter.defence.resist[i] == this.enemy.type) {
                             console.log(`you are resistant and deals only ${Math.floor(parseInt(this.enemy.moves[x].damage) * 0.8)} damage`);
-                            this.infoboard.text(`you are resistant and deals only ${Math.floor(parseInt(this.enemy.moves[x].damage) * 0.8)} damage`);
+                            this.updateinfoBoard(`you are resistant and deals only ${Math.floor(parseInt(this.enemy.moves[x].damage) * 0.8)} damage`);
                             console.log(`fighter hp:${this.fighter.hp} current attack damage: ${parseInt(this.enemy.moves[x].damage)} `)
                             this.fighter.hp -= Math.floor(parseInt(this.enemy.moves[x].damage) * 0.8);
+                            this.damagerecived += Math.floor(parseInt(this.enemy.moves[x].damage) * 0.8);
                             this.enemy.renderEnemy();
                             this.fighter.renderFighter();
                             console.log("end of attack handler");
@@ -679,9 +740,10 @@ class BattleGame {
                     for (let i = 0; i < this.enemy.defence.weak.length; i++) {
                         if (this.fighter.defence.weak[i] == this.enemy.type) {
                             console.log(`Its super effective you take ${Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2)} damage`);
-                            this.infoboard.text(`Its super effective you take ${Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2)} damage`);
+                            this.updateinfoBoard(`Its super effective you take ${Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2)} damage`);
                             console.log(`fighter hp:${this.fighter.hp} current attack damage: ${parseInt(this.enemy.moves[x].damage)} `)
                             this.fighter.hp -= Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2);
+                            this.damagerecived += Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2);
                             this.enemy.renderEnemy();
                             this.fighter.renderFighter();
                             console.log("end of attack handler");
@@ -691,9 +753,10 @@ class BattleGame {
                     }
                     if (this.PlayerTurn == false) {
                         console.log(`normal attack deals only ${parseInt(this.enemy.moves[x].damage)}`);
-                        this.infoboard.text(`normal attack deals only ${parseInt(this.enemy.moves[x].damage)}`);
+                        this.updateinfoBoard(`normal attack deals only ${parseInt(this.enemy.moves[x].damage)}`);
                         console.log(`fighter hp:${this.fighter.hp} current attack damage: ${parseInt(this.enemy.moves[x].damage)} `)
                         this.fighter.hp -= parseInt(this.enemy.moves[x].damage);
+                        this.damagerecived += parseInt(this.enemy.moves[x].damage);
                         this.enemy.renderEnemy();
                         this.fighter.renderFighter();
                         console.log("end of attack handler");
@@ -702,7 +765,7 @@ class BattleGame {
                     }
                 }
                 console.log('renering results no damage done');
-                this.infoboard.text(`no damage done you are immune too their attack!`);
+                this.updateinfoBoard(`no damage done you are immune too their attack!`);
                 console.log(this.enemy);
                 console.log(this.fighter);
                 this.enemy.renderEnemy();
@@ -753,6 +816,7 @@ class BattleGame {
     }
 
     nextTurn() {
+        this.movecount++;
         let that = this;
         if (this.PlayerTurn == false) {
             this.enemy.E += 10;
@@ -760,7 +824,7 @@ class BattleGame {
             this.PlayerTurn = true;
             if (this.fighter.hp < 1) {
                 if (this.bench.hp < 1) {
-                    alert("you lost");
+                    this.winLossModal("loss");
                 }
             }
 
@@ -774,15 +838,26 @@ class BattleGame {
             if (this.enemy.hp <= 0) {
 
                 if (this.enemybench.hp > 0) {
-                    setTimeout(function(){ that.switchEnemyChar(); }, 1000);
+                    setTimeout(function () { that.switchEnemyChar(); }, 1000);
                 }
-                else{
-                alert("you win!")
-                return "victory"
+                else {
+                    winLossModal("win");
+                    return "victory";
                 }
             }
-            setTimeout(function(){ that.generateEnemeyAttack(); }, 3000);
-            
+            if (this.enemy.attack.No == this.fighter.type && this.enemybench.KO == true) {
+                if (this.bench.KO !== true && this.fighter.attack.No !== this.enemy.type) {
+                    alert("you win enemy cant attack");
+                    return "victory";
+                }
+                else if (this.fighter.attack.No == this.enemy.type) {
+                    alert("Draw neither side can attack you are both immune");
+                    return "Draw";
+                }
+            }
+            else {
+                setTimeout(function () { that.generateEnemeyAttack(); }, 3000);
+            }
         }
     }
 
@@ -877,6 +952,9 @@ class BattleGame {
             }
         });
 
+        $("#").click(function () {
+            $.modal.close();
+        });
 
     }
 
