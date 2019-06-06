@@ -377,6 +377,10 @@ class GameCharacter {
             this.benchLoaded = true;
             console.log(`bench is loaded: ${this.benchLoaded}`);
         }
+        if (this.hp <= 0) {
+            this.nameDiv.text(this.name + " KO!");
+            this.KO = true;
+        }
         this.bottomRow.text(`HP:${this.hp} E:${this.E}`);
         this.m1.text(`${this.moves[0].name} D:${this.moves[0].damage} E:${this.moves[0].energy}`);
         this.m2.text(`${this.moves[1].name} D:${this.moves[1].damage} E:${this.moves[1].energy}`);
@@ -545,7 +549,7 @@ class BattleGame {
 
             if (this.enemy.E < parseInt(this.enemy.moves[0].energy)) {
                 console.log("enemy using energy move");
-                console.log(this.enemy.moves[0]);
+                console.log(this.enemy.moves[1]);
                 this.HandleAttack(energymove);
                 return;
             }
@@ -596,7 +600,7 @@ class BattleGame {
     //Status unkown need to fix KO system.
     //Depending on this.PlayerTurn will handle player attack based on move index input or enemy attack
     HandleAttack(x) {
-        if (this.PlayerTurn == true) {
+        if (this.PlayerTurn == true && this.fighter.KO == false) {
             console.log('Player Turn Attacking');
             if (parseInt(this.fighter.E) - parseInt(this.fighter.moves[x].energy) >= 0) {
                 this.fighter.E = parseInt(this.fighter.E) - parseInt(this.fighter.moves[x].energy);
@@ -607,6 +611,7 @@ class BattleGame {
                         if (this.enemy.defence.resist[i] == this.fighter.type) {
                             console.log(`the enemy resists and only deals ${Math.floor(this.fighter.moves[x].damage * 0.8)} damage`);
                             this.infoboard.text(`the enemy resists and only deals ${Math.floor(this.fighter.moves[x].damage * 0.8)} damage`);
+                            console.log(`enemy hp:${this.enemy.hp} current attack damage: ${parseInt(this.fighter.moves[x].damage)} `);
                             this.enemy.hp -= Math.floor(parseInt(this.fighter.moves[x].damage) * 0.8);
                             this.enemy.renderEnemy();
                             this.fighter.renderFighter();
@@ -620,6 +625,7 @@ class BattleGame {
                         if (this.enemy.defence.weak[i] == this.fighter.type) {
                             console.log(`Its super effective dealing ${Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2)} damage`);
                             this.infoboard.text(`Its super effective dealing ${Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2)} damage`);
+                            console.log(`enemy hp:${this.enemy.hp} current attack damage: ${parseInt(this.fighter.moves[x].damage)} `);
                             this.enemy.hp -= Math.floor(parseInt(this.fighter.moves[x].damage) * 1.2);
                             this.enemy.renderEnemy();
                             this.fighter.renderFighter();
@@ -632,6 +638,7 @@ class BattleGame {
                     if (this.PlayerTurn == true) {
                         console.log(`normal attack dealing ${parseInt(this.fighter.moves[x].damage)} damage`);
                         this.infoboard.text(`normal attack dealing ${parseInt(this.fighter.moves[x].damage)} damage`);
+                        console.log(`enemy hp:${this.enemy.hp} current attack damage: ${parseInt(this.fighter.moves[x].damage)} `);
                         this.enemy.hp -= parseInt(this.fighter.moves[x].damage);
                         this.enemy.renderEnemy();
                         this.fighter.renderFighter();
@@ -658,8 +665,9 @@ class BattleGame {
                     console.log(`fighter is not immune`);
                     for (let i = 0; i < this.fighter.defence.resist.length; i++) {
                         if (this.fighter.defence.resist[i] == this.enemy.type) {
-                            console.log(`you are resistant and deals only ${Math.floor(this.enemy.moves[x].damage * 0.8)} damage`);
-                            this.infoboard.text(`you are resistant and deals only ${Math.floor(this.enemy.moves[x].damage * 0.8)} damage`);
+                            console.log(`you are resistant and deals only ${Math.floor(parseInt(this.enemy.moves[x].damage) * 0.8)} damage`);
+                            this.infoboard.text(`you are resistant and deals only ${Math.floor(parseInt(this.enemy.moves[x].damage) * 0.8)} damage`);
+                            console.log(`fighter hp:${this.fighter.hp} current attack damage: ${parseInt(this.enemy.moves[x].damage)} `)
                             this.fighter.hp -= Math.floor(parseInt(this.enemy.moves[x].damage) * 0.8);
                             this.enemy.renderEnemy();
                             this.fighter.renderFighter();
@@ -672,6 +680,7 @@ class BattleGame {
                         if (this.fighter.defence.weak[i] == this.enemy.type) {
                             console.log(`Its super effective you take ${Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2)} damage`);
                             this.infoboard.text(`Its super effective you take ${Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2)} damage`);
+                            console.log(`fighter hp:${this.fighter.hp} current attack damage: ${parseInt(this.enemy.moves[x].damage)} `)
                             this.fighter.hp -= Math.floor(parseInt(this.enemy.moves[x].damage) * 1.2);
                             this.enemy.renderEnemy();
                             this.fighter.renderFighter();
@@ -683,10 +692,12 @@ class BattleGame {
                     if (this.PlayerTurn == false) {
                         console.log(`normal attack deals only ${parseInt(this.enemy.moves[x].damage)}`);
                         this.infoboard.text(`normal attack deals only ${parseInt(this.enemy.moves[x].damage)}`);
+                        console.log(`fighter hp:${this.fighter.hp} current attack damage: ${parseInt(this.enemy.moves[x].damage)} `)
                         this.fighter.hp -= parseInt(this.enemy.moves[x].damage);
                         this.enemy.renderEnemy();
                         this.fighter.renderFighter();
                         console.log("end of attack handler");
+                        this.nextTurn();
                         return;
                     }
                 }
@@ -742,6 +753,7 @@ class BattleGame {
     }
 
     nextTurn() {
+        let that = this;
         if (this.PlayerTurn == false) {
             this.enemy.E += 10;
             this.enemy.hp += 10;
@@ -762,14 +774,15 @@ class BattleGame {
             if (this.enemy.hp <= 0) {
 
                 if (this.enemybench.hp > 0) {
-                    this.switchEnemyChar();
+                    setTimeout(function(){ that.switchEnemyChar(); }, 1000);
                 }
                 else{
                 alert("you win!")
                 return "victory"
                 }
             }
-            this.generateEnemeyAttack()
+            setTimeout(function(){ that.generateEnemeyAttack(); }, 3000);
+            
         }
     }
 
