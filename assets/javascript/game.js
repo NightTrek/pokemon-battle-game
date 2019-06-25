@@ -841,17 +841,17 @@ class BattleGame {
                     setTimeout(function () { that.switchEnemyChar(); }, 1000);
                 }
                 else {
-                    winLossModal("win");
+                    this.winLossModal("win");
                     return "victory";
                 }
             }
             if (this.enemy.attack.No == this.fighter.type && this.enemybench.KO == true) {
                 if (this.bench.KO !== true && this.fighter.attack.No !== this.enemy.type) {
-                    alert("you win enemy cant attack");
+                    this.winLossModal("win");
                     return "victory";
                 }
                 else if (this.fighter.attack.No == this.enemy.type) {
-                    alert("Draw neither side can attack you are both immune");
+                    this.winLossModal("draw");
                     return "Draw";
                 }
             }
@@ -952,9 +952,9 @@ class BattleGame {
             }
         });
 
-        $("#").click(function () {
-            $.modal.close();
-        });
+        // $("#").click(function () {
+        //     $.modal.close();
+        // });
 
     }
 
@@ -985,14 +985,11 @@ $(document).ready(function () {
         }
     });
 
-
-
-    $("#reselect").click(function () {
+    $(document).on('click', '#reselect', function () {
         // console.log("Reslected")
         game.playerCharacters.forEach(element => {
             element.changeTarget($("#character-select"));
             element.render();
-
 
         });
         game.playerCharacters = [];
@@ -1001,7 +998,7 @@ $(document).ready(function () {
         $.modal.close();
     });
 
-    $("#continue").click(function () {
+    $(document).on('click', "#continue", function () {
         game.BegingBattle();
         $.modal.close();
     });
