@@ -772,6 +772,8 @@ class BattleGame {
                 this.fighter.renderFighter();
                 this.nextTurn();
             }
+        }else{
+            this.HandleAttack(1);
         }
         console.log("end of attack handler");
 
